@@ -1,64 +1,117 @@
 const express = require('express');
 const router = express.Router();
+const { db, admin } = require('../config/firebase');
 
-// In-memory storage (temporary - we'll use a database later)
-let products = [
-  { id: 1, name: 'Haircut', price: 25, category: 'service' },
-  { id: 2, name: 'Hair Dye', price: 50, category: 'service' },
-  { id: 3, name: 'Shampoo', price: 15, category: 'product' }
-];
-
-// GET /api/products - Get all products
-router.get('/', (req, res) => {
-  res.json({
-    success: true,
-    count: products.length,
-    data: products
-  });
-});
+// Reference to products collection
+const productsCollection = db.collection('products');
 
 // POST /api/products - Create a new product
-router.post('/', (req, res) => {
-  const { name, price, category } = req.body;
-  
-  // Simple validation
-  if (!name || !price) {
-    return res.status(400).json({
+router.post('/', async (req, res) => {
+  try {
+    const { name, price, category, description } = req.body;
+
+    // Validation
+    if (!name || !price) {
+      return res.status(400).json({
+        success: false,
+        message: 'Name and price are required'
+      });
+    }
+
+    // Create product object
+    const productData = {
+      name,
+      price: parseFloat(price),
+      category: category || 'product',
+      description: description || '',
+      createdAt: admin.firestore.FieldValue.serverTimestamp()
+    };
+
+    // Add to Firestore
+    const docRef = await productsCollection.add(productData);
+
+    res.status(201).json({
+      success: true,
+      message: 'Product created successfully',
+      data: {
+        id: docRef.id,
+        ...productData
+      }
+    });
+  } catch (error) {
+    console.error('Error creating product:', error);
+    res.status(500).json({
       success: false,
-      message: 'Please provide name and price'
+      message: 'Error creating product',
+      error: error.message
     });
   }
-
-  const newProduct = {
-    id: products.length + 1,
-    name,
-    price: parseFloat(price),
-    category: category || 'product'
-  };
-
-  products.push(newProduct);
-
-  res.status(201).json({
-    success: true,
-    data: newProduct
-  });
 });
 
-// GET /api/products/:id - Get a single product by ID
-router.get('/:id', (req, res) => {
-  const product = products.find(p => p.id === parseInt(req.params.id));
+// GET /api/products - Get all products
+router.get('/', async (req, res) => {
+  try {
+    const snapshot = await productsCollection.get();
 
-  if (!product) {
-    return res.status(404).json({
+    if (snapshot.empty) {
+      return res.json({
+        success: true,
+        count: 0,
+        data: []
+      });
+    }
+
+    const products = [];
+    snapshot.forEach(doc => {
+      products.push({
+        id: doc.id,
+        ...doc.data()
+      });
+    });
+
+    res.json({
+      success: true,
+      count: products.length,
+      data: products
+    });
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    res.status(500).json({
       success: false,
-      message: 'Product not found'
+      message: 'Error fetching products',
+      error: error.message
     });
   }
+});
 
-  res.json({
-    success: true,
-    data: product
-  });
+// GET /api/products/:id - Get a single product
+router.get('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const doc = await productsCollection.doc(id).get();
+
+    if (!doc.exists) {
+      return res.status(404).json({
+        success: false,
+        message: 'Product not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: {
+        id: doc.id,
+        ...doc.data()
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching product:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching product',
+      error: error.message
+    });
+  }
 });
 
 module.exports = router;
