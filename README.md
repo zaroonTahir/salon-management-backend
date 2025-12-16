@@ -1,24 +1,50 @@
-const express = require('express');
-const cors = require('cors');
-require('dotenv').config();
+# Salon Management Backend
 
-const app = express();
-const PORT = process.env.PORT || 4000;
+Simple Express.js backend for Salon Management System.
 
-// Middleware
-app.use(cors());
-app.use(express.json());
+---
 
-// Routes
-app.get('/', (req, res) => {
-  res.json({ ok: true });
-});
+## 🚀 Tech Stack
+- Node.js
+- Express.js
+- dotenv
+- cors
+- nodemon
 
-app.get('/health', (req, res) => {
-  res.json({ status: 'healthy' });
-});
+---
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
+## 📁 Project Structure
+
+salon-backend/
+├── src/
+│ └── index.js
+├── .gitignore
+├── README.md
+├── package.json
+
+
+---
+
+## ⚙️ Setup Instructions
+
+### 1️⃣ Clone Repository
+```bash
+git clone <repo-url>
+cd salon-backend
+
+npm install
+
+PORT=4000
+
+npm run dev
+
+# Testing
+http://localhost:4000
+http://localhost:4000/health
+
+## ✅ Acceptance Checklist
+✔ Server runs locally  
+✔ `.env` used but not committed  
+✔ README has run steps  
+✔ Feature branch exists  
+✔ PR created  
