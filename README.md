@@ -18,6 +18,10 @@ Simple Express.js backend for Salon Management System.
 salon-backend/
 ├── src/
 │ └── index.js
+  └── config
+    └── firebase.js
+  └── routes
+    └── products.js
 ├── .gitignore
 ├── README.md
 ├── package.json
