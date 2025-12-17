@@ -17,11 +17,24 @@ Simple Express.js backend for Salon Management System.
 
 salon-backend/
 ├── src/
-│ └── index.js
+│   ├── config/
+│   │   └── firebase.js
+│   ├── controllers/
+│   │   ├── customerController.js
+│   │   └── appointmentController.js
+│   ├── routes/
+│   │   ├── products.js
+│   │   ├── customers.js
+│   │   └── appointments.js
+│   ├── validators/
+│   │   ├── customerValidator.js
+│   │   └── appointmentValidator.js
+│   └── index.js
+├── serviceAccountKey.json
+├── .env  
 ├── .gitignore
 ├── README.md
-├── package.json
-
+└── package.json
 
 ---
 
@@ -156,3 +169,39 @@ GET /api/products/{productId}
 ```
 
 Example: `GET /api/products/abc123xyz`
+
+#### Create a Customer
+POST /api/customers/create
+Content-Type: application/json
+
+{
+  "name": "Sarah Johnson",
+  "email": "sarah.johnson@example.com",
+  "phone": "+1-555-0123",
+  "address": "456 Oak Street, New York, NY"
+}
+
+
+#### Get All Customers
+GET /api/customers/
+
+#### Get Single Customer
+GET /api/customers/:id
+
+#### Create a Appointment
+POST /api/appointments/create
+Content-Type: application/json
+
+{
+  "customerId": "abc123xyz",
+  "serviceName": "Hair Coloring",
+  "appointmentDate": "2025-12-25T15:30:00",
+  "notes": "Client wants blonde highlights",
+  "status": "pending"
+}
+
+#### Get All Appointments
+GET /api/appointments/
+
+#### Get Single Appointment
+GET /api/appointments/:id
