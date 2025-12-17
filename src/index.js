@@ -9,14 +9,28 @@ const PORT = process.env.PORT || 4000;
 app.use(cors());
 app.use(express.json());
 
-// Routes
+// Import routes
+const productsRouter = require('./routes/products');
+const customersRouter = require('./routes/customers');
+const appointmentsRouter = require('./routes/appointments');
+
+// Base routes
 app.get('/', (req, res) => {
-  res.json({ ok: true });
+  res.json({ 
+    ok: true,
+    message: 'Salon Management API',
+    version: '1.0.0'
+  });
 });
 
 app.get('/health', (req, res) => {
   res.json({ status: 'healthy' });
 });
+
+// API routes
+app.use('/api/products', productsRouter);
+app.use('/api/customers', customersRouter);
+app.use('/api/appointments', appointmentsRouter);
 
 // Start server
 app.listen(PORT, () => {
