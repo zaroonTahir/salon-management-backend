@@ -16,20 +16,27 @@ Simple Express.js backend for Salon Management System.
 ## 📁 Project Structure
 
 salon-backend/
-├── src/
-│   ├── config/
-│   │   └── firebase.js
-│   ├── controllers/
-│   │   ├── customerController.js
-│   │   └── appointmentController.js
-│   ├── routes/
-│   │   ├── products.js
-│   │   ├── customers.js
-│   │   └── appointments.js
-│   ├── validators/
-│   │   ├── customerValidator.js
-│   │   └── appointmentValidator.js
-│   └── index.js
+src/
+├── config/
+│   ├── firebase.js
+│   └── jwt.js                    
+├── controllers/
+│   ├── customerController.js
+│   ├── appointmentController.js
+│   └── authController.js         
+├── routes/
+│   ├── customers.js
+│   ├── appointments.js
+│   └── auth.js                   
+├── utils/
+│   ├── hashPassword.js           
+│   └── generateToken.js          
+├── validators/
+│   ├── customerValidator.js
+│   ├── appointmentValidator.js
+│   └── authValidator.js          
+├── middlewares/                (empty for now)
+└── index.js
 ├── serviceAccountKey.json
 ├── .env  
 ├── .gitignore
@@ -205,3 +212,36 @@ GET /api/appointments/
 
 #### Get Single Appointment
 GET /api/appointments/:id
+
+## 🔐 Authentication
+
+### Register New User
+```http
+POST /auth/register
+
+{
+  "name": "John Doe",
+  "email": "john@salon.com",
+  "password": "secure123",
+  "role": "admin"
+}
+```
+
+### Login
+```http
+POST /auth/login
+
+{
+  "email": "john@salon.com",
+  "password": "secure123"
+}
+```
+
+### User Roles
+- `admin` - Full access
+- `staff` - Limited access (default)
+
+### Security
+- Passwords hashed with bcrypt (10 rounds)
+- JWT tokens expire in 7 days
+- Minimum password length: 6 characters

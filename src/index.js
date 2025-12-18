@@ -13,6 +13,7 @@ app.use(express.json());
 const productsRouter = require('./routes/products');
 const customersRouter = require('./routes/customers');
 const appointmentsRouter = require('./routes/appointments');
+const authRouter = require('./routes/auth');  // ← ADD THIS
 
 // Base routes
 app.get('/', (req, res) => {
@@ -31,6 +32,7 @@ app.get('/health', (req, res) => {
 app.use('/api/products', productsRouter);
 app.use('/api/customers', customersRouter);
 app.use('/api/appointments', appointmentsRouter);
+app.use('/auth', authRouter);  // ← ADD THIS
 
 // Start server
 app.listen(PORT, () => {
