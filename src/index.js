@@ -13,9 +13,10 @@ app.use(express.json());
 const productsRouter = require('./routes/products');
 const customersRouter = require('./routes/customers');
 const appointmentsRouter = require('./routes/appointments');
-const authRouter = require('./routes/auth');  // ← ADD THIS
+const authRouter = require('./routes/auth');
+const servicesRouter = require('./routes/services');
 
-// Base routes
+// Base routes (public - no auth required)
 app.get('/', (req, res) => {
   res.json({ 
     ok: true,
@@ -29,10 +30,11 @@ app.get('/health', (req, res) => {
 });
 
 // API routes
-app.use('/api/products', productsRouter);
-app.use('/api/customers', customersRouter);
-app.use('/api/appointments', appointmentsRouter);
-app.use('/auth', authRouter);  // ← ADD THIS
+app.use('/auth', authRouter); // Public routes (login, register)
+app.use('/api/products', productsRouter); // Protected routes
+app.use('/api/customers', customersRouter); // Protected routes
+app.use('/api/appointments', appointmentsRouter); // Protected routes
+app.use('/api/services', servicesRouter); // Protected routes (admin for create)
 
 // Start server
 app.listen(PORT, () => {

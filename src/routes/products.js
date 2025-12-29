@@ -1,54 +1,15 @@
 const express = require('express');
 const router = express.Router();
+const authMiddleware = require('../middlewares/authMiddleware');
+const roleMiddleware = require('../middlewares/roleMiddleware');
 const { db, admin } = require('../config/firebase');
 
-// Reference to products collection
 const productsCollection = db.collection('products');
 
-// POST /api/products - Create a new product
-router.post('/', async (req, res) => {
-  try {
-    const { name, price, category, description } = req.body;
+// Apply auth middleware to all routes
+router.use(authMiddleware);
 
-    // Validation
-    if (!name || !price) {
-      return res.status(400).json({
-        success: false,
-        message: 'Name and price are required'
-      });
-    }
-
-    // Create product object
-    const productData = {
-      name,
-      price: parseFloat(price),
-      category: category || 'product',
-      description: description || '',
-      createdAt: admin.firestore.FieldValue.serverTimestamp()
-    };
-
-    // Add to Firestore
-    const docRef = await productsCollection.add(productData);
-
-    res.status(201).json({
-      success: true,
-      message: 'Product created successfully',
-      data: {
-        id: docRef.id,
-        ...productData
-      }
-    });
-  } catch (error) {
-    console.error('Error creating product:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error creating product',
-      error: error.message
-    });
-  }
-});
-
-// GET /api/products - Get all products
+// GET /api/products - Get all products (all authenticated users)
 router.get('/', async (req, res) => {
   try {
     const snapshot = await productsCollection.get();
@@ -84,7 +45,49 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET /api/products/:id - Get a single product
+// POST /api/products - Create product (admin only)
+router.post('/', roleMiddleware('admin'), async (req, res) => {
+  try {
+    const { name, price, category, description } = req.body;
+
+    if (!name || !price) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide name and price'
+      });
+    }
+
+    const productData = {
+      name,
+      price: parseFloat(price),
+      category: category || 'product',
+      description: description || '',
+      createdBy: req.user.id,
+      createdByName: req.user.name,
+      createdAt: admin.firestore.FieldValue.serverTimestamp()
+    };
+
+    const docRef = await productsCollection.add(productData);
+
+    res.status(201).json({
+      success: true,
+      message: 'Product created successfully',
+      data: {
+        id: docRef.id,
+        ...productData
+      }
+    });
+  } catch (error) {
+    console.error('Error creating product:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error creating product',
+      error: error.message
+    });
+  }
+});
+
+// GET /api/products/:id - Get single product (all authenticated users)
 router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
