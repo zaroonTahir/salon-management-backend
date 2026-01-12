@@ -9,7 +9,10 @@ const PORT = process.env.PORT || 4000;
 app.use(cors());
 app.use(express.json());
 
-// Routes
+// Import routes
+const productsRouter = require('./routes/products');
+
+// Base routes
 app.get('/', (req, res) => {
   res.json({ ok: true });
 });
@@ -17,6 +20,9 @@ app.get('/', (req, res) => {
 app.get('/health', (req, res) => {
   res.json({ status: 'healthy' });
 });
+
+// API routes
+app.use('/api/products', productsRouter);
 
 // Start server
 app.listen(PORT, () => {
